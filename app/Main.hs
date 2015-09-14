@@ -15,11 +15,6 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 
-type UserAPI =
-    -- GET /users/:id
-         "users" :> QueryParam "id" Integer :> Get '[JSON] [User]
-    -- :<|>
-    -- POST /users
 
 data User = User {
     firstName :: String
@@ -42,22 +37,40 @@ data Address = Address {
 instance ToJSON User
 instance FromJSON User
 
-newtype SSN = SSN String deriving Show
-newtype Email = Email String deriving Show
+instance FromJSON Day where
+    parseJSON d = Day $ fromGregorian d
 
-userAPI :: Proxy UserAPI
-userAPI = Proxy
+instance ToJSON Day where
+  -- display a day in YYYY-mm-dd format
+  toJSON d = toJSON $ showGregorian d
 
-server :: Server userAPI
-server = undefined
+instance ToJSON Email
+instance FromJSON Email
+instance ToJSON SSN
+instance FromJSON SSN
+instance ToJSON Address
+instance FromJSON Address
 
-app :: Application
-app = serve userAPI server
+newtype SSN = SSN String deriving (Show, Generic)
+newtype Email = Email String deriving (Show, Generic)
 
-runServer :: Port -> IO ()
-runServer port = run port app
+-- type UserAPI =
+--     -- GET /users/:id
+--          "users" :> QueryParam "id" Integer :> Get '[JSON] [User]
+--     -- :<|>
+--     -- POST /users
+-- userAPI :: Proxy UserAPI
+-- userAPI = Proxy
+
+-- -- server :: Server userAPI
+-- server = undefined
+
+-- app :: Application
+-- app = serve userAPI server
+
+-- runServer :: Port -> IO ()
+-- runServer port = run port app
 
 main :: IO ()
-main = do
-    putStrLn "starting app on port 8081"
-    runServer 8081
+main = putStrLn "starting app on port 8081"
+    -- runServer 8081
