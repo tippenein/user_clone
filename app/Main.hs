@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
 
@@ -8,13 +9,16 @@ module Main where
 
 import           Control.Monad.Trans.Either
 import           Data.Aeson
+import           Data.Aeson.TH              (defaultOptions, deriveJSON)
 import           Data.List
+import           Data.Text
 import           Data.Time
 import           GHC.Generics
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 
+$(deriveJSON defaultOptions ''Day)
 
 data User = User {
     firstName :: String
@@ -37,12 +41,13 @@ data Address = Address {
 instance ToJSON User
 instance FromJSON User
 
-instance FromJSON Day where
-    parseJSON d = Day $ fromGregorian d
+-- instance FromJSON Day where
+--   parseJSON (String d) = readTime defaultTimeLocale "%Y-%m-%d" d
+--   parseJSON _ = fail "failed to parse date"
 
-instance ToJSON Day where
-  -- display a day in YYYY-mm-dd format
-  toJSON d = toJSON $ showGregorian d
+-- instance ToJSON Day where
+--   -- display a day in YYYY-mm-dd format
+--   toJSON d = toJSON $ showGregorian d
 
 instance ToJSON Email
 instance FromJSON Email

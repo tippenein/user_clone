@@ -32,6 +32,7 @@ executable user_clone
     , either
     , transformers
     , aeson
+    , text
     , time
     , warp
     , wai
