@@ -59,23 +59,47 @@ instance FromJSON Address
 newtype SSN = SSN String deriving (Show, Generic)
 newtype Email = Email String deriving (Show, Generic)
 
--- type UserAPI =
---     -- GET /users/:id
---          "users" :> QueryParam "id" Integer :> Get '[JSON] [User]
---     -- :<|>
---     -- POST /users
--- userAPI :: Proxy UserAPI
--- userAPI = Proxy
+type UserAPI =
+    -- GET /users
+         "users" :> Get '[JSON] [User]
+    -- GET /users/:id
+    :<|> "users" :> Capture "id" Integer :> Get '[JSON] User
+    -- POST /users
+    :<|>"users" :> ReqBody '[JSON] User :> Post '[JSON] User
+    -- DELETE /users/:id
+    :<|>"users" :> Capture "id" Text :> Delete '[JSON] ()
 
--- -- server :: Server userAPI
--- server = undefined
 
--- app :: Application
--- app = serve userAPI server
+theirDob = fromGregorian 2012 1 1
+theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
 
--- runServer :: Port -> IO ()
--- runServer port = run port app
+allUsers :: [User]
+allUsers = [User "burt" "bobby" (SSN "123-23-5433") (Email "derp@gmail.com") theirAddress "218-222-5555" theirDob]
+
+userAPI :: Proxy UserAPI
+userAPI = Proxy
+
+server :: Server UserAPI
+server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
+  where
+    allUsersH :: EitherT ServantErr IO [User]
+    allUsersH = return allUsers
+
+    getUserH :: Integer -> EitherT ServantErr IO User
+    getUserH id = return $ Data.List.head allUsers
+
+    postUserH :: User -> EitherT ServantErr IO User
+    postUserH = return
+
+    deleteUserH _ = return ()
+
+app :: Application
+app = serve userAPI server
+
+runServer :: Port -> IO ()
+runServer port = run port app
 
 main :: IO ()
-main = putStrLn "starting app on port 8081"
-    -- runServer 8081
+main = do
+  putStrLn "starting app on port 8081"
+  runServer 8081
