@@ -1,5 +1,4 @@
 {-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
@@ -12,34 +11,12 @@ import Data.Aeson
 import Data.Aeson.TH              (defaultOptions, deriveJSON)
 import Data.List
 import Data.Text
-import Data.Text.Internal
 import Data.Time
-import GHC.Generics
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 
-
-data User = User {
-    firstName :: Text
-  , lastName  :: Text
-  , ssn       :: SSN
-  , email     :: Email
-  , address   :: Address
-  , phone     :: Text
-  , dob       :: Day
-  } deriving (Show, Generic)
-
-data Address = Address {
-    street    :: Text
-  , city      :: Text
-  , state     :: Text
-  , aptNumber :: Text
-  , zipCode   :: Text
-  } deriving (Show, Generic)
-
-instance ToJSON User
-instance FromJSON User
+import Types
 
 instance ToJSON Day where
   toJSON = toJSON . showGregorian
@@ -47,6 +24,8 @@ instance ToJSON Day where
 parseDate :: String -> Day
 parseDate = parseTimeOrError True defaultTimeLocale "%Y-%m-%d"
 
+instance ToJSON User
+instance FromJSON User
 instance FromJSON Day where
   parseJSON (Object v) = liftM parseDate (v .: "date")
 
@@ -56,9 +35,6 @@ instance ToJSON SSN
 instance FromJSON SSN
 instance ToJSON Address
 instance FromJSON Address
-
-newtype SSN = SSN Text deriving (Show, Generic)
-newtype Email = Email Text deriving (Show, Generic)
 
 type UserAPI =
     -- GET /users
