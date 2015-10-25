@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module Main where
+module UserService.Server (userAPI, allUsers, runServer) where
 
 import Control.Monad
 import Control.Monad.Trans.Either
@@ -15,8 +15,9 @@ import Data.Time
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
+import Servant.Client
 
-import Types
+import UserService.Types
 
 instance ToJSON Day where
   toJSON = toJSON . showGregorian
@@ -42,10 +43,9 @@ type UserAPI =
     -- GET /users/:id
     :<|> "users" :> Capture "id" Integer :> Get '[JSON] User
     -- POST /users
-    :<|>"users" :> ReqBody '[JSON] User :> Post '[JSON] User
+    :<|> "users" :> ReqBody '[JSON] User :> Post '[JSON] User
     -- DELETE /users/:id
-    :<|>"users" :> Capture "id" Text :> Delete '[JSON] ()
-
+    :<|> "users" :> Capture "id" Text :> Delete '[JSON] ()
 
 theirDob = fromGregorian 2012 1 1
 theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
@@ -76,7 +76,3 @@ app = serve userAPI server
 runServer :: Port -> IO ()
 runServer port = run port app
 
-main :: IO ()
-main = do
-  putStrLn "starting app on port 8081"
-  runServer 8081

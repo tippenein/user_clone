@@ -13,14 +13,36 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+source-repository head
+  type:     git
+  location: https://github.com/tippenein/user-clone
+
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base >= 4.7 && < 5
+  exposed-modules:
+      UserService
+      UserService.Server
+    , UserService.Database
+    , UserService.Client
+    , UserService.Types
+  build-depends:
+      base
+    , servant >= 0.4
+    , servant-client >= 0.4
+    , servant-server >= 0.4
+    , either
+    , transformers
+    , product-profunctors
+    , aeson
+    , text
+    , time
+    , warp
+    , wai
+    , opaleye
   default-language:    Haskell2010
 
 executable user_clone
-  hs-source-dirs:      app
+  hs-source-dirs:      src
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:
@@ -36,6 +58,7 @@ executable user_clone
     , time
     , warp
     , wai
+    , opaleye
   default-language:    Haskell2010
 
 test-suite user-clone-test
@@ -51,6 +74,3 @@ test-suite user-clone-test
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
-source-repository head
-  type:     git
-  location: https://github.com/tippenein/user-clone

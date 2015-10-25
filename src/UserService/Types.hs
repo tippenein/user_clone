@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Types (
+module UserService.Types (
     User(..)
   , Address(..)
   , SSN(..)
@@ -33,5 +33,6 @@ data Address = Address {
 
 newtype SSN = SSN Text deriving (Show, Generic)
 newtype Email = Email Text deriving (Show, Generic)
+
 
 
