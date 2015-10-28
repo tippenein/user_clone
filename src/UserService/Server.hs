@@ -14,6 +14,7 @@ import Control.Monad.Trans.Either
 import Data.Aeson
 import Data.Aeson.TH              (defaultOptions, deriveJSON)
 import Data.List
+import Data.Maybe
 import Data.Text
 import Data.Time
 import Network.Wai
@@ -66,11 +67,18 @@ allUsers = [User 1 "burt" "bobby" ssn email theirAddress "218-222-5555" theirDob
 userAPI :: Proxy UserAPI
 userAPI = Proxy
 
+data UserQueryParams = UserQueryParams { idQ :: Maybe Integer, ssnQ :: Maybe SSN, emailQ :: Maybe Email }
+
 server :: Server UserAPI
 server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
   where
     allUsersH :: Maybe Integer -> Maybe SSN -> Maybe Email -> EitherT ServantErr IO [User]
-    allUsersH id ssn email = return allUsers
+    allUsersH id ssn email =
+      case params of
+        [] -> return allUsers
+        _ -> return $ filterUsersBy params allUsers
+      where
+        params = UserQueryParams { idQ=UserService.Types.id, ssnQ=ssn, emailQ=email }
 
     getUserH :: Integer -> EitherT ServantErr IO User
     getUserH id = return $ Data.List.head allUsers
@@ -79,6 +87,9 @@ server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
     postUserH = return
 
     deleteUserH _ = return ()
+
+filterUsersBy :: UserQueryParams -> [User] -> [User]
+filterUsersBy params users = Data.List.filter (\a -> ssn a == ssnQ params || email a == emailQ params) users
 
 app :: Application
 app = serve userAPI server
