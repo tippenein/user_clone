@@ -3,7 +3,11 @@
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
 
-module UserService.Server (userAPI, allUsers, runServer) where
+module UserService.Server
+  ( userAPI
+  , allUsers
+  , runServer)
+where
 
 import Control.Monad
 import Control.Monad.Trans.Either
@@ -38,20 +42,26 @@ instance ToJSON Address
 instance FromJSON Address
 
 type UserAPI =
-    -- GET /users
-         "users" :> Get '[JSON] [User]
+  -- GET /users
+  "users"
+  :> QueryParam "id" Integer
+  :> QueryParam "ssn" SSN
+  :> QueryParam "email" Email
+  :> Get '[JSON] [User]
     -- GET /users/:id
-    :<|> "users" :> Capture "id" Integer :> Get '[JSON] User
-    -- POST /users
-    :<|> "users" :> ReqBody '[JSON] User :> Post '[JSON] User
-    -- DELETE /users/:id
-    :<|> "users" :> Capture "id" Text :> Delete '[JSON] ()
-
-theirDob = fromGregorian 2012 1 1
-theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
+  :<|> "users" :> Capture "id" Integer :> Get '[JSON] User
+  -- POST /users
+  :<|> "users" :> ReqBody '[JSON] User :> Post '[JSON] User
+  -- DELETE /users/:id
+  :<|> "users" :> Capture "id" Text :> Delete '[JSON] ()
 
 allUsers :: [User]
-allUsers = [User "burt" "bobby" (SSN "123-23-5433") (Email "derp@gmail.com") theirAddress "218-222-5555" theirDob]
+allUsers = [User 1 "burt" "bobby" ssn email theirAddress "218-222-5555" theirDob]
+  where
+    ssn = SSN "123-23-5433"
+    email = Email "derp@gmail.com"
+    theirDob = fromGregorian 2012 1 1
+    theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
 
 userAPI :: Proxy UserAPI
 userAPI = Proxy
@@ -59,8 +69,8 @@ userAPI = Proxy
 server :: Server UserAPI
 server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
   where
-    allUsersH :: EitherT ServantErr IO [User]
-    allUsersH = return allUsers
+    allUsersH :: Maybe Integer -> Maybe SSN -> Maybe Email -> EitherT ServantErr IO [User]
+    allUsersH id ssn email = return allUsers
 
     getUserH :: Integer -> EitherT ServantErr IO User
     getUserH id = return $ Data.List.head allUsers

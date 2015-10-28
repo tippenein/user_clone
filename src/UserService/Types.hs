@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module UserService.Types (
     User(..)
@@ -11,9 +12,11 @@ import Data.Text
 import Data.Text.Internal
 import Data.Time
 import GHC.Generics
+import Servant
 
 data User = User {
-    firstName :: Text
+    id        :: Integer
+  , firstName :: Text
   , lastName  :: Text
   , ssn       :: SSN
   , email     :: Email
@@ -31,8 +34,8 @@ data Address = Address {
   } deriving (Show, Generic)
 
 
-newtype SSN = SSN Text deriving (Show, Generic)
-newtype Email = Email Text deriving (Show, Generic)
+newtype SSN = SSN Text deriving (Show, Generic, FromText, ToText)
+newtype Email = Email Text deriving (Show, Generic, FromText, ToText)
 
 
 

@@ -1,28 +1,28 @@
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module UserService.Client
   ( getUsers
   , postUser)
 where
 
 import Control.Monad.Trans.Either
+import Data.Aeson
+import Data.Text
+import GHC.Generics               (Generic)
 import Servant
 import Servant.Client
+
 import UserService.Server
 import UserService.Types
 
-(getUsers :<|> postUser) = client userAPI host
-  where
-    host = BaseUrl Https "localhost" 8081
+-- getUsers' :: Maybe Integer -> Maybe SSN -> Maybe Email -> EitherT ServantError IO [User]
 
-    getUsers :: EitherT ServantError IO [User]
-    getUsers = return allUsers
+getUsers' :<|> getUser' :<|> postUser' :<|> destroyUser' =
+  client userAPI host
+    where
+      host = BaseUrl Https "localhost" 8081
 
-    postUser :: User -> EitherT ServantError IO User
-    postUser u = return u
+getUsers id ssn email = runEitherT $ getUsers' (Just id) (Just ssn) (Just email)
 
--- runQ :: IO ()
--- runQ = do
---   res <- runEitherT getUsers
---   case res of
---     Left err -> putStrLn $ "Error: " ++ show err
---     Right a -> print a
-
+postUser user = undefined
