@@ -4,7 +4,6 @@
 module UserService.Types (
     User(..)
   , Address(..)
-  , SSN(..)
   , Email(..)
   ) where
 
@@ -18,7 +17,6 @@ data User = User {
     id        :: Integer
   , firstName :: Text
   , lastName  :: Text
-  , ssn       :: SSN
   , email     :: Email
   , address   :: Address
   , phone     :: Text
@@ -34,7 +32,6 @@ data Address = Address {
   } deriving (Show, Generic)
 
 
-newtype SSN = SSN Text deriving (Show, Generic, FromText, ToText)
 newtype Email = Email Text deriving (Show, Generic, FromText, ToText)
 
 

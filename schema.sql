@@ -5,7 +5,6 @@ CREATE TABLE users (
   id serial,
   firstName text,
   lastName text
-  ssn text
   email text
   phone text
   dob date)

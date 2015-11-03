@@ -16,13 +16,13 @@ import Servant.Client
 import UserService.Server
 import UserService.Types
 
--- getUsers' :: Maybe Integer -> Maybe SSN -> Maybe Email -> EitherT ServantError IO [User]
+-- getUsers' :: Maybe Integer -> Maybe Email -> EitherT ServantError IO [User]
 
 getUsers' :<|> getUser' :<|> postUser' :<|> destroyUser' =
   client userAPI host
     where
       host = BaseUrl Https "localhost" 8081
 
-getUsers id ssn email = runEitherT $ getUsers' (Just id) (Just ssn) (Just email)
+getUsers id email = runEitherT $ getUsers' (Just id) (Just email)
 
 postUser user = undefined

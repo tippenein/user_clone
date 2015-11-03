@@ -16,11 +16,13 @@ import Data.Aeson.TH              (defaultOptions, deriveJSON)
 import Data.List
 import Data.Text
 import Data.Time
+import Database.Persist
 import Network.Wai
 import Network.Wai.Handler.Warp
 import Servant
 import Servant.Client
 
+import UserService.Database
 import UserService.Types
 
 instance ToJSON Day where
@@ -36,8 +38,6 @@ instance FromJSON Day where
 
 instance ToJSON Email
 instance FromJSON Email
-instance ToJSON SSN
-instance FromJSON SSN
 instance ToJSON Address
 instance FromJSON Address
 
@@ -45,7 +45,6 @@ type UserAPI =
   -- GET /users
   "users"
   :> QueryParam "id" Integer
-  :> QueryParam "ssn" SSN
   :> QueryParam "email" Email
   :> Get '[JSON] [User]
     -- GET /users/:id
@@ -56,12 +55,7 @@ type UserAPI =
   :<|> "users" :> Capture "id" Text :> Delete '[JSON] ()
 
 allUsers :: [User]
-allUsers = [User 1 "burt" "bobby" ssn email theirAddress "218-222-5555" theirDob]
-  where
-    ssn = SSN "123-23-5433"
-    email = Email "derp@gmail.com"
-    theirDob = fromGregorian 2012 1 1
-    theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
+allUsers = UserService.Database.allUsers
 
 userAPI :: Proxy UserAPI
 userAPI = Proxy
@@ -69,8 +63,8 @@ userAPI = Proxy
 server :: Server UserAPI
 server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
   where
-    allUsersH :: Maybe Integer -> Maybe SSN -> Maybe Email -> EitherT ServantErr IO [User]
-    allUsersH id ssn email = return allUsers
+    allUsersH :: Maybe Integer -> Maybe Email -> EitherT ServantErr IO [User]
+    allUsersH id email = return allUsers
 
     getUserH :: Integer -> EitherT ServantErr IO User
     getUserH id = return $ Data.List.head allUsers
