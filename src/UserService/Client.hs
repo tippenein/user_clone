@@ -3,6 +3,8 @@
 
 module UserService.Client
   ( getUsers
+  , getUser
+  , destroyUser
   , postUser)
 where
 
@@ -24,5 +26,6 @@ getUsers' :<|> getUser' :<|> postUser' :<|> destroyUser' =
       host = BaseUrl Https "localhost" 8081
 
 getUsers id email = runEitherT $ getUsers' (Just id) (Just email)
-
-postUser user = undefined
+getUser id = runEitherT $ getUser' id
+postUser user = runEitherT $ postUser' user
+destroyUser id = runEitherT $ destroyUser' id

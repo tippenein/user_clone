@@ -42,13 +42,14 @@ Address
   deriving Show
 |]
 
-allUsers = selectList [] [LimitTo 10]
+allUsers = undefined
 
-setupDb = undefined -- runSqlite ":memory:" $ do
-  -- runMigration migrateAll
-  -- now <- liftIO getCurrentTime
-  -- _ <- insert $ User "derp" "town" "email@email.com" "123-223-3322" (fromGregorian 2000 2 2) now now
-  -- liftIO $ print "migrated seeds"
+setupDb :: IO ()
+setupDb = runSqlite ":memory:" $ do
+  runMigration migrateAll
+  now <- liftIO getCurrentTime
+  _ <- insert $ User "derp" "town" "email@email.com" "123-223-3322" (fromGregorian 2000 2 2) now now
+  liftIO $ print "migrated seeds"
 
 -- $(makeAdaptorAndInstance "pUser" ''User)
 
