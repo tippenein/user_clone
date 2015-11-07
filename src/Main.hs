@@ -1,17 +1,20 @@
 module Main where
 
-import UserService
 
-import Control.Monad
-import System.Environment
+import           Control.Monad
+import           System.Environment
 
-import UserService.Database (setupDb)
+import qualified Control.Exception    as Exception
+import           UserService.Database (setupDb)
+import           UserService.Server   (runServer)
 
 -- | Main application init
 main :: IO ()
 main = do
   setupDb
-  (port:_) <- getArgs
-  putStrLn $ "starting app on port " ++ port
-  runServer (fromIntegral (read port))
+  let port = 8081 :: Int
+  putStrLn ("Starting on port " ++ show port ++ "...")
+  Exception.catch
+    (runServer port)
+    (\ Exception.UserInterrupt -> putStrLn "\nStopping...")
 

@@ -6,13 +6,13 @@ import UserService.Types
 
 user1 = User 1 "burt" "bobby" email theirAddress "218-222-5555" theirDob
   where
-    email = Email "derp@gmail.com"
+    email = "derp@gmail.com"
     theirDob = fromGregorian 2012 1 1
     theirAddress = Address "Sttreet" "LA" "CA" "#1" "90210"
 
 user2 = User 1 "basdf" "sdfawef" email theirAddress "218-222-5555" theirDob
   where
-    email = Email "sdafasdf@gmail.com"
+    email = "sdafasdf@gmail.com"
     theirDob = fromGregorian 2000 1 1
     theirAddress = Address "St ave goo" "Pelican Rapids" "MN" "#1" "56572"
 

@@ -1,80 +1,51 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE TypeOperators     #-}
-
 module UserService.Server
-  ( userAPI
-  , runServer)
+  (runServer)
 where
 
-import           Control.Monad
 import           Control.Monad.Trans.Either
-import           Data.Aeson
-import           Data.Aeson.TH              (defaultOptions, deriveJSON)
-import           Data.List
 import           Data.Text
 import           Data.Time
 import           Database.Persist
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
-import           Servant.Client
 
+import           UserService.API            as API
 import qualified UserService.Database       as DB
 import           UserService.Types
 
-instance ToJSON Day where
-  toJSON = toJSON . showGregorian
-
-parseDate :: String -> Day
-parseDate = parseTimeOrError True defaultTimeLocale "%Y-%m-%d"
-
-instance ToJSON User
-instance FromJSON User
-instance FromJSON Day where
-  parseJSON (Object v) = liftM parseDate (v .: "date")
-
-instance ToJSON Email
-instance FromJSON Email
-instance ToJSON Address
-instance FromJSON Address
-
-type UserAPI =
-  -- GET /users
-  "users"
-  :> QueryParam "id" Integer
-  :> QueryParam "email" Email
-  :> Get '[JSON] [User]
-    -- GET /users/:id
-  :<|> "users" :> Capture "id" Integer :> Get '[JSON] User
-  -- POST /users
-  :<|> "users" :> ReqBody '[JSON] User :> Post '[JSON] User
-  -- DELETE /users/:id
-  :<|> "users" :> Capture "id" Text :> Delete '[JSON] ()
+type Handler a = EitherT ServantErr IO a
 
 allUsers :: [User]
 allUsers = [] :: [User]
 
-userAPI :: Proxy UserAPI
-userAPI = Proxy
-
 server :: Server UserAPI
-server = allUsersH :<|> getUserH :<|> postUserH :<|> deleteUserH
-  where
-    allUsersH :: Maybe Integer -> Maybe Email -> EitherT ServantErr IO [User]
-    allUsersH id email = return allUsers
+server =
+       listUsers
+  :<|> showUser
+  :<|> createUser
+  :<|> updateUser
+  :<|> destroyUser
 
-    getUserH :: Integer -> EitherT ServantErr IO User
-    getUserH id = return $ Data.List.head allUsers
+listUsers :: Maybe Integer
+          -> Maybe Text
+          -> Handler [User]
+listUsers id email = return allUsers
 
-    postUserH :: User -> EitherT ServantErr IO User
-    postUserH = return
+showUser :: Integer -> Handler User
+showUser id = return $ Prelude.head allUsers
 
-    deleteUserH _ = return ()
+createUser :: User -> Handler User
+createUser u = return u
+
+updateUser :: Integer -> User -> Handler User
+updateUser id u = return u
+
+destroyUser :: Integer -> Handler User
+destroyUser id = return $ Prelude.head allUsers
 
 app :: Application
-app = serve userAPI server
+app = serve API.userAPI server
 
 runServer :: Port -> IO ()
 runServer port = run port app
