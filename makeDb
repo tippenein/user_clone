@@ -1,5 +1,5 @@
 #!/bin/sh
-sudo su postgres --command 'createuser ircbrowse -P'
-sudo su postgres --command 'createdb ircbrowse -O ircbrowse'
+sudo su postgres --command 'createuser user_clone -P'
+sudo su postgres --command 'createdb user_clone -O user_clone'
 
-dist/build/user_clone/user_clone user_clone.conf --create-version
+stack exec user_clone user_clone.conf --create-version

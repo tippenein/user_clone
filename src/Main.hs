@@ -11,7 +11,7 @@ import           UserService.Server   (runServer)
 -- | Main application init
 main :: IO ()
 main = do
-  setupDb
+  -- setupDb
   let port = 8081 :: Int
   putStrLn ("Starting on port " ++ show port ++ "...")
   Exception.catch

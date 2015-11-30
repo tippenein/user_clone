@@ -1,9 +1,11 @@
-module UserService
-  ( module UserService.Types
+module UserService (
+    module UserService.Client
+  , module UserService.Database
   , module UserService.Server
-  , module UserService.Client)
-  where
+  , module UserService.Types
+  ) where
 
 import UserService.Client
+import UserService.Database
 import UserService.Server
 import UserService.Types

@@ -17,8 +17,7 @@ import GHC.Generics
 import Servant
 
 data User = User {
-    id        :: Integer
-  , firstName :: Text
+    firstName :: Text
   , lastName  :: Text
   , email     :: Text
   , address   :: Address
